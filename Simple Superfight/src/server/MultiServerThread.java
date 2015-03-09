@@ -42,6 +42,7 @@ public class MultiServerThread extends Thread {
 					input = in.readLine();
 					System.out.println(input);
 					sm.printMessage(input);
+					out.print(input);
 				} catch (SocketException s) {
 					System.err.println(friendName + ": connection lost");
 					break;
