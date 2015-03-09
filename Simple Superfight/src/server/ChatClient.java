@@ -2,8 +2,8 @@ package server;
 
 import java.io.IOException;
 
-import test.Network.ChatMessage;
-import test.Network.RegisterName;
+import server.Network.ChatMessage;
+import server.Network.RegisterName;
 
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;

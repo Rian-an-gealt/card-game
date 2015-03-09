@@ -1,55 +1,50 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import javafx.application.Application;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import server.Network;
+import server.Network.ChatMessage;
+import server.Network.GetRandomStartHand;
+import server.Network.ReadyUp;
+import server.Network.RegisterName;
+import server.Network.StartGame;
 import clientUI.ScreenManager;
+
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 
 public class Main extends Application {
 
-	private static Hand hand1;
-	private static Hand hand2;
-	private static String hostName;
-	private static int portNum;
-	private static Deck deck;
-	private static Socket socket;
-	private static String username;
+	private static Hand hand;
 	private static Stage stage;
-	private static PrintWriter out;
-	private static BufferedReader in;
 	private static ScreenManager sm;
+	private static Client client;
 
 	public static void main(String[] args) {
 		launch(args);
-		hostName = "server";
-		portNum = 255;
-	}
+		// hostName = "server";
+		// portNum = 255;
 
-	private static TextArea output;
-	private TextField input;
+	}
 
 	@Override
 	public void start(Stage arg0) throws Exception {
 		stage = arg0;
-		sm = new ScreenManager();
+		sm = new ScreenManager(this);
 		sm.createStart(stage);
-		sm.createChat(stage);
-		sm.createGame(stage);
+		sm.createLobby(stage);
+		// sm.createGame(stage);
 		sm.setScreen("start");
-		// startScreen(arg0);
-		// StartScreen start = new StartScreen(arg0);
 	}
 
-	public static void sendMessage(String text) {
-		out.println(text);
-		System.out.println("Sent message from main");
+	public void sendMessage(String text) {
+		ChatMessage cm = new ChatMessage();
+		cm.text = text;
+		client.sendTCP(cm);
 	}
 
 	public static ScreenManager getScreenManager() {
@@ -57,39 +52,80 @@ public class Main extends Application {
 	}
 
 	public static boolean connect(String name) {
-		String hostName = "localhost";
-		int portNumber = 255;
+		client = new Client();
+		client.start();
+		Network.register(client);
+
+		client.addListener(new Listener() {
+			public void connected(Connection connection) {
+				RegisterName registerName = new RegisterName();
+				registerName.name = name;
+				client.sendTCP(registerName);
+			}
+
+			public void received(Connection connection, Object object) {
+				if (object instanceof ChatMessage) {
+					ChatMessage chatMessage = (ChatMessage) object;
+					// chatFrame.addMessage(chatMessage.text);
+					sm.printMessage(chatMessage.text);
+					return;
+				}
+
+				if (object instanceof Hand) {
+					hand = (Hand) object;
+					int count = 1;
+					for (Card c : hand.getHand()) {
+						sm.setButtonName(count, c.getWords());
+						count++;
+					}
+				}
+
+				if (object instanceof StartGame) {
+					StartGame sg = (StartGame) object;
+					if (sg.text.equals("playing")) {
+						Platform.runLater(() -> {
+							sm.createGame(getStage(), true);
+						});
+					} else {
+						Platform.runLater(() -> {
+							sm.createGame(getStage(), false);
+						});
+					}
+				}
+			}
+
+			public void disconnected(Connection connection) {
+
+			}
+		});
 		try {
-			socket = new Socket(hostName, portNumber);
-			ScreenManager.printMessage(name + " connected!");
-			out = new PrintWriter(socket.getOutputStream(), true);
-			in = new BufferedReader(new InputStreamReader(
-					socket.getInputStream()));
-			out.println(name);
-		} catch (IOException e) {
-			System.err.println("Connection Failed.");
+			client.connect(5000, "localhost", Network.port);
+			// Server communication after connection can go here, or in
+			// Listener#connected().
+			System.out.println("Connected");
+			return true;
+		} catch (IOException ex) {
+			System.err.println("Could not connect. Server must be down.");
+			// System.exit(1);
 		}
-		return true;
-	}
 
-	public static void setUsername(String text) {
-		username = text;
-	}
-
-	public static Deck getDeck() {
-		return deck;
-	}
-
-	public static void setDeck(Deck deck) {
-		Main.deck = deck;
+		return false;
 	}
 
 	public static Stage getStage() {
 		return stage;
 	}
 
-	public static Socket getSocket() {
-		return socket;
+	public void startHand() {
+		GetRandomStartHand grsh = new GetRandomStartHand();
+		grsh.text = "";
+		client.sendTCP(grsh);
+	}
+
+	public void setReadyUp() {
+		ReadyUp ru = new ReadyUp();
+		ru.isReady = true;
+		client.sendTCP(ru);
 	}
 
 }

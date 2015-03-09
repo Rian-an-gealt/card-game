@@ -2,7 +2,7 @@ package clientUI;
 
 import java.util.HashMap;
 
-import server.ServerMain;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -24,8 +24,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import client.Card;
-import client.Deck;
 import client.Hand;
 import client.Main;
 
@@ -34,12 +32,20 @@ public class ScreenManager extends StackPane {
 	private static TextArea output;
 	private TextField input;
 	private String username;
-	private Deck deck;
-	private Hand hand1;
-	private Hand hand2;
+	private Main main;
+	private Button yours1;
+	private Button yours2;
+	private Button yours3;
+	private Button yours4;
+	private Button yours5;
+	private Button yours6;
+	private Button theirs1;
+	private Button theirs2;
+	private Button theirs3;
 
-	public ScreenManager() {
+	public ScreenManager(Main main) {
 		super();
+		this.main = main;
 	}
 
 	public void addScreen(String name, Scene screen) {
@@ -48,6 +54,25 @@ public class ScreenManager extends StackPane {
 
 	public Scene getScreen(String name) {
 		return screens.get(name);
+	}
+
+	public void setButtonName(int number, String text) {
+		switch (number) {
+		case 1:
+			yours1.setText(text);
+		case 2:
+			yours2.setText(text);
+		case 3:
+			yours3.setText(text);
+		case 4:
+			yours4.setText(text);
+		case 5:
+			yours5.setText(text);
+		case 6:
+			yours6.setText(text);
+		default:
+			System.out.println("Failed to update button");
+		}
 	}
 
 	public boolean setScreen(final String name) {
@@ -74,76 +99,108 @@ public class ScreenManager extends StackPane {
 	public static TextArea getOutputArea() {
 		return output;
 	}
-	
-	public static void printMessage(String msg) {
+
+	public void printMessage(String msg) {
 		// Platform.runLater(() -> {output.appendText(sender + ": " + msg +
 		// "\n");});
 		if (getOutputArea() != null) {
-			getOutputArea().appendText(msg + "\n");
-		}
-	}
-
-	public void createGame(Stage stage) {
-		deck = new Deck();
-		deck.init();
-		deck.printDeck();
-		hand1 = deck.randStartHand();
-		hand1.sortHand();
-		hand2 = deck.randStartHand();
-		hand2.sortHand();
-		System.out.println("Player 1 Hand:");
-		hand1.printHand();
-		System.out.println("Player 2 Hand:");
-		hand2.printHand();
-		deck.printDeck();
-		GridPane grid = new GridPane();
-		grid.setAlignment(Pos.TOP_CENTER);
-		grid.setHgap(10);
-		grid.setVgap(10);
-		grid.setPadding(new Insets(25, 25, 25, 25));
-		int xCount = 0;
-		int yCount = 0;
-		// deck = ServerMain.getDeck();
-		// hand1 = deck.randStartHand();
-		// hand1.sortHand();
-		// hand2 = deck.randStartHand();
-		// hand2.sortHand();
-		for (Card c : hand1.getHand()) {
-			Button char1 = new Button();
-			char1.setText(c.getWords());
-			char1.setOnAction(new EventHandler<ActionEvent>() {
-
-				@Override
-				public void handle(ActionEvent event) {
-					System.out.println(char1.getText());
-				}
+			// getOutputArea().appendText(msg + "\n");
+			Platform.runLater(() -> {
+				output.appendText(msg + "\n");
 			});
-			char1.setMaxSize(200, 200);
-			char1.setWrapText(true);
-			char1.setAlignment(Pos.TOP_LEFT);
-			grid.add(char1, xCount, yCount);
-			if (xCount == 2) {
-				xCount = 0;
-				yCount++;
-			} else {
-				xCount++;
-			}
 		}
-		Scene scene = new Scene(grid, 650, 500);
-		addScreen("game", scene);
 	}
 
-	public void createChat(Stage stage) {
+	public void createGame(Stage stage, boolean isPlaying) {
+		System.out.println("Setting up game");
+		if (isPlaying) {
+			VBox vbox = new VBox();
+			// Platform.runLater(() -> {
+			// main.startDeck();
+			main.startHand();
+			// hand = main.getStartHand();
+			// });
+
+			GridPane grid = new GridPane();
+			grid.setAlignment(Pos.BOTTOM_CENTER);
+			grid.setHgap(10);
+			grid.setVgap(10);
+			grid.setPadding(new Insets(25, 25, 25, 25));
+			yours1 = new Button();
+			yours1.setMaxSize(200, 200);
+			yours1.setWrapText(true);
+			yours1.setAlignment(Pos.TOP_LEFT);
+			yours2 = new Button();
+			yours2.setMaxSize(200, 200);
+			yours2.setWrapText(true);
+			yours2.setAlignment(Pos.TOP_LEFT);
+			yours3 = new Button();
+			yours3.setMaxSize(200, 200);
+			yours3.setWrapText(true);
+			yours3.setAlignment(Pos.TOP_LEFT);
+			yours4 = new Button();
+			yours4.setMaxSize(200, 200);
+			yours4.setWrapText(true);
+			yours4.setAlignment(Pos.TOP_LEFT);
+			yours5 = new Button();
+			yours5.setMaxSize(200, 200);
+			yours5.setWrapText(true);
+			yours5.setAlignment(Pos.TOP_LEFT);
+			yours6 = new Button();
+			yours6.setMaxSize(200, 200);
+			yours6.setWrapText(true);
+			yours6.setAlignment(Pos.TOP_LEFT);
+			grid.add(yours1, 0, 0);
+			grid.add(yours2, 0, 1);
+			grid.add(yours3, 0, 2);
+			grid.add(yours4, 1, 0);
+			grid.add(yours5, 1, 1);
+			grid.add(yours6, 1, 2);
+
+			GridPane theirCards = new GridPane();
+			theirCards.setAlignment(Pos.TOP_CENTER);
+			theirCards.setHgap(10);
+			theirCards.setVgap(10);
+			theirCards.setPadding(new Insets(25, 25, 25, 25));
+			theirs1 = new Button();
+			theirs1.setMaxSize(200, 200);
+			theirs1.setWrapText(true);
+			theirs1.setAlignment(Pos.TOP_LEFT);
+			theirs2 = new Button();
+			theirs2.setMaxSize(200, 200);
+			theirs2.setWrapText(true);
+			theirs2.setAlignment(Pos.TOP_LEFT);
+			theirs3 = new Button();
+			theirs3.setMaxSize(200, 200);
+			theirs3.setWrapText(true);
+			theirs3.setAlignment(Pos.TOP_LEFT);
+			theirCards.add(theirs1, 0, 0);
+			theirCards.add(theirs2, 0, 1);
+			theirCards.add(theirs3, 0, 2);
+			vbox.getChildren().addAll(theirCards, grid);
+			Scene scene = new Scene(vbox, 1200, 800);
+			// Scene scene = new Scene(grid, 1200, 800);
+			addScreen("game", scene);
+		} else {
+			// TODO add version where you are not playing
+		}
+	}
+
+	public void createLoadingScreen() {
+		// TODO make a ready up message.
+	}
+
+	public void createLobby(Stage stage) {
 		Group root = new Group();
 		// stage.setScene(new Scene(root, 650, 500));
-		GridPane grid = new GridPane();
+		GridPane chatGrid = new GridPane();
 		VBox box = new VBox();
 		box.setPadding(new Insets(8.0));
 		box.setSpacing(8.0);
 
 		output = new TextArea();
 		box.getChildren().add(output);
-		grid.add(box, 0, 0);
+		chatGrid.add(box, 0, 0);
 		output.setEditable(false);
 		output.setStyle("-fx-border-style: none");
 		output.setFocusTraversable(false);
@@ -151,17 +208,19 @@ public class ScreenManager extends StackPane {
 		HBox chatLine = new HBox();
 		chatLine.setPadding(new Insets(8.0));
 		chatLine.setSpacing(8.0);
-		grid.add(chatLine, 0, 1);
+		chatGrid.add(chatLine, 0, 1);
 		input = new TextField();
 		input.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent ke) {
 				if (ke.getCode().equals(KeyCode.ENTER)) {
-					String text = "[" + username + "] " + input.getText()
-							+ "\n";
-					//output.appendText(text);
-					System.out.println(text);
-					Main.sendMessage(text);
+					/*
+					 * String text = "[" + username + "] " + input.getText() +
+					 * "\n";
+					 */
+					// output.appendText(text);
+					System.out.println(input.getText());
+					main.sendMessage(input.getText());
 					input.clear();
 				}
 			}
@@ -174,28 +233,30 @@ public class ScreenManager extends StackPane {
 			@Override
 			public void handle(ActionEvent event) {
 				String text = "[" + username + "] " + input.getText() + "\n";
-				//output.appendText(text);
+				// output.appendText(text);
 				System.out.println(text);
-				Main.sendMessage(text);
+				main.sendMessage(input.getText());
 				input.clear();
 			}
 		});
 
 		Button start = new Button();
-		start.setText("Start");
+		start.setText("Ready");
 		start.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				setScreen("game");
+				// createGame(stage);
+				// setScreen("game");
+				main.setReadyUp();
 			}
 		});
 
 		chatLine.getChildren().add(send);
 		chatLine.getChildren().add(start);
-		root.getChildren().add(grid);
+		root.getChildren().add(chatGrid);
 		stage.show();
 		input.requestFocus();
-		Scene scene = new Scene(root, 650, 500);
+		Scene scene = new Scene(root, 1200, 800);
 		addScreen("chat", scene);
 	}
 
@@ -223,6 +284,8 @@ public class ScreenManager extends StackPane {
 						username = text;
 						if (Main.connect(username)) {
 							setScreen("chat");
+						} else {
+							// TODO print error on the screen
 						}
 					} else {
 						// TODO print error on the screen
@@ -248,6 +311,8 @@ public class ScreenManager extends StackPane {
 					username = text;
 					if (Main.connect(username)) {
 						setScreen("chat");
+					} else {
+						// TODO print error on the screen
 					}
 				} else {
 					// TODO print error on the screen
@@ -262,6 +327,7 @@ public class ScreenManager extends StackPane {
 			public void handle(ActionEvent event) {
 				System.out.println(exit.getText());
 				try {
+					main.stop();
 					// TODO
 				} catch (Exception e) {
 					System.err.println("Failed to stop the client");
@@ -275,7 +341,7 @@ public class ScreenManager extends StackPane {
 
 		border.setCenter(loginGrid);
 
-		Scene scene = new Scene(border, 650, 500);
+		Scene scene = new Scene(border, 1200, 800);
 
 		// Scene scene = new Scene(buttonGrid, 650, 500);
 		// stage.setTitle("Test Game");
