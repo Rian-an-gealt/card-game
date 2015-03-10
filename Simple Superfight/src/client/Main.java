@@ -12,6 +12,8 @@ import server.Network.ReadyUp;
 import server.Network.RecieveSelected;
 import server.Network.RegisterName;
 import server.Network.SendSelected;
+import server.Network.SendVote;
+import server.Network.SendWinner;
 import server.Network.StartGame;
 import clientUI.ScreenManager;
 
@@ -31,6 +33,7 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
+	//TODO implement all the superfight rules? ie Battle Royale?
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -43,14 +46,15 @@ public class Main extends Application {
 
 	public void sendMessage(String text) {
 		if (text.equals("Vote 1")) {
-			// TODO send vote message that checks on the server if it is voting
-			// time.
+			SendVote vote = new SendVote();
+			vote.vote = 1;
+			client.sendTCP(vote);
 			System.out.println("Vote 1 command works");
 		} else {
 			if (text.equals("Vote 2")) {
-				// TODO send vote message that checks on the server if it is
-				// voting
-				// time.
+				SendVote vote =  new SendVote();
+				vote.vote = 2;
+				client.sendTCP(vote);
 			} else {
 				ChatMessage cm = new ChatMessage();
 				cm.text = text;
@@ -93,12 +97,11 @@ public class Main extends Application {
 				}
 
 				if (object instanceof StartGame) {
-					StartGame sg = (StartGame) object;
+					//StartGame sg = (StartGame) object;
 					if (connection.getID() == 1 || connection.getID() == 2) {
 						startHand();
 					} else {
-						// TODO figure out how to either swap connection id with
-						// looser or more messages
+						
 					}
 				}
 
@@ -111,6 +114,11 @@ public class Main extends Application {
 
 				if (object instanceof FlipCards) {
 					sendSelectedCards();
+				}
+				
+				if(object instanceof SendWinner){
+					SendWinner winner = (SendWinner) object;
+					sm.printMessage(winner.winner + " Wins!");
 				}
 			}
 

@@ -37,7 +37,6 @@ public class Network {
 		kryo.register(AttributeCard.class);
 		kryo.register(ScenarioCard.class);
 		kryo.register(LocationCard.class);
-		// kryo.register(LinkedList.class);
 		kryo.register(ArrayList.class);
 		kryo.register(StartGame.class);
 		kryo.register(ReadyUp.class);
@@ -45,6 +44,9 @@ public class Network {
 		kryo.register(SendSelected.class);
 		kryo.register(RecieveSelected.class);
 		kryo.register(FlipCards.class);
+		kryo.register(SendVote.class);
+		kryo.register(SendWinner.class);
+		kryo.register(Integer.class);
 	}
 
 	static public class RegisterName {
@@ -85,6 +87,14 @@ public class Network {
 
 	static public class GetRandomStartHand {
 		public String text;
+	}
+	
+	static public class SendVote{
+		public int vote;
+	}
+	
+	static public class SendWinner{
+		public String winner;
 	}
 
 	static public class Deck {

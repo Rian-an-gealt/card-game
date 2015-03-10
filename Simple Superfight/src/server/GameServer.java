@@ -11,6 +11,8 @@ import server.Network.ReadyUp;
 import server.Network.RecieveSelected;
 import server.Network.RegisterName;
 import server.Network.SendSelected;
+import server.Network.SendVote;
+import server.Network.SendWinner;
 import server.Network.StartGame;
 import client.Card;
 import client.Hand;
@@ -26,14 +28,19 @@ public class GameServer {
 	ArrayList<Boolean> isReady;
 	int firstPlayerVotes;
 	int secondPlayerVotes;
+	int totalVotes;
 	boolean gameStarted;
+	boolean voteTime;
 
 	public GameServer() throws IOException {
 		namesList = new ArrayList<String>();
 		isReady = new ArrayList<Boolean>();
 		firstPlayerVotes = 0;
 		secondPlayerVotes = 0;
+		totalVotes = 0;
 		gameStarted = false;
+		voteTime = false;
+
 		server = new Server() {
 			protected Connection newConnection() {
 				return new GameConnection();
@@ -54,8 +61,9 @@ public class GameServer {
 					name = name.trim();
 					if (name.length() == 0)
 						return;
-					if(gameStarted){
-						//TODO this needs to be somewhere else to not allow them to connect at all.
+					if (gameStarted) {
+						// TODO this needs to be somewhere else to not allow
+						// them to connect at all.
 						return;
 					}
 					connection.name = name;
@@ -94,18 +102,21 @@ public class GameServer {
 				if (object instanceof ReadyUp) {
 					isReady.add(true);
 					ReadyUp rup = (ReadyUp) object;
-					if (isReady.size() == namesList.size() && rup.type.equals("start")) {
+					if (isReady.size() == namesList.size()
+							&& rup.type.equals("start")) {
 						StartGame sg = new StartGame();
 						sg.text = "playing";
 						server.sendToAllTCP(sg);
 						isReady.clear();
 						gameStarted = true;
 					}
-					if(isReady.size() == namesList.size() && rup.type.equals("play")){
+					if (isReady.size() == namesList.size()
+							&& rup.type.equals("play")) {
 						// shows cards to both at same time
 						FlipCards fc = new FlipCards();
 						fc.text = "";
 						server.sendToAllTCP(fc);
+						voteTime = true;
 					}
 				}
 
@@ -117,6 +128,38 @@ public class GameServer {
 					rs.attribute = ss.attribute;
 					rs.random = getRandomCard().getWords();
 					server.sendToAllExceptTCP(connection.getID(), rs);
+				}
+
+				if (object instanceof SendVote) {
+					if (voteTime) {
+						SendVote vote = (SendVote) object;
+						if (vote.vote == 1) {
+							firstPlayerVotes++;
+							totalVotes++;
+						}
+						if (vote.vote == 2) {
+							secondPlayerVotes++;
+							totalVotes++;
+						}
+						if (totalVotes == namesList.size()) {
+							SendWinner win = new SendWinner();
+							if (firstPlayerVotes > secondPlayerVotes) {
+								// TODO find way to get connection name;
+								win.winner = "Player 1";
+							} else {
+								if (secondPlayerVotes > firstPlayerVotes) {
+									// TODO find way to get connection name;
+									win.winner = "Player 2";
+								} else {
+									// TODO tie breaker?
+									win.winner = "TIE";
+								}
+							}
+							server.sendToAllTCP(win);
+						}
+					} else {
+						// TODO send message for not ready to vote
+					}
 				}
 			}
 
@@ -164,8 +207,8 @@ public class GameServer {
 		rand.sortHand();
 		return rand;
 	}
-	
-	public Card getRandomCard(){
+
+	public Card getRandomCard() {
 		Card card = deck.drawBlackCard();
 		return card;
 	}
