@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,7 +23,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import client.Hand;
 import client.Main;
 
 public class ScreenManager extends StackPane {
@@ -42,6 +40,8 @@ public class ScreenManager extends StackPane {
 	private Button theirs1;
 	private Button theirs2;
 	private Button theirs3;
+	private String selectedChar;
+	private String selectedAtt;
 
 	public ScreenManager(Main main) {
 		super();
@@ -59,19 +59,50 @@ public class ScreenManager extends StackPane {
 	public void setButtonName(int number, String text) {
 		switch (number) {
 		case 1:
-			yours1.setText(text);
+			Platform.runLater(() -> {
+				yours1.setText(text);
+			});
 		case 2:
-			yours2.setText(text);
+			Platform.runLater(() -> {
+				yours2.setText(text);
+			});
 		case 3:
-			yours3.setText(text);
+			Platform.runLater(() -> {
+				yours3.setText(text);
+			});
 		case 4:
-			yours4.setText(text);
+			Platform.runLater(() -> {
+				yours4.setText(text);
+			});
 		case 5:
-			yours5.setText(text);
+			Platform.runLater(() -> {
+				yours5.setText(text);
+			});
 		case 6:
-			yours6.setText(text);
+			Platform.runLater(() -> {
+				yours6.setText(text);
+			});
 		default:
 			System.out.println("Failed to update button");
+		}
+	}
+
+	public void setTheirButtonName(int number, String text) {
+		switch (number) {
+		case 1:
+			Platform.runLater(() -> {
+				theirs1.setText(text);
+			});
+		case 2:
+			Platform.runLater(() -> {
+				theirs2.setText(text);
+			});
+		case 3:
+			Platform.runLater(() -> {
+				theirs3.setText(text);
+			});
+		default:
+			System.out.println("Failed to update Their buttons");
 		}
 	}
 
@@ -111,89 +142,18 @@ public class ScreenManager extends StackPane {
 		}
 	}
 
-	public void createGame(Stage stage, boolean isPlaying) {
-		System.out.println("Setting up game");
-		if (isPlaying) {
-			VBox vbox = new VBox();
-			// Platform.runLater(() -> {
-			// main.startDeck();
-			main.startHand();
-			// hand = main.getStartHand();
-			// });
-
-			GridPane grid = new GridPane();
-			grid.setAlignment(Pos.BOTTOM_CENTER);
-			grid.setHgap(10);
-			grid.setVgap(10);
-			grid.setPadding(new Insets(25, 25, 25, 25));
-			yours1 = new Button();
-			yours1.setMaxSize(200, 200);
-			yours1.setWrapText(true);
-			yours1.setAlignment(Pos.TOP_LEFT);
-			yours2 = new Button();
-			yours2.setMaxSize(200, 200);
-			yours2.setWrapText(true);
-			yours2.setAlignment(Pos.TOP_LEFT);
-			yours3 = new Button();
-			yours3.setMaxSize(200, 200);
-			yours3.setWrapText(true);
-			yours3.setAlignment(Pos.TOP_LEFT);
-			yours4 = new Button();
-			yours4.setMaxSize(200, 200);
-			yours4.setWrapText(true);
-			yours4.setAlignment(Pos.TOP_LEFT);
-			yours5 = new Button();
-			yours5.setMaxSize(200, 200);
-			yours5.setWrapText(true);
-			yours5.setAlignment(Pos.TOP_LEFT);
-			yours6 = new Button();
-			yours6.setMaxSize(200, 200);
-			yours6.setWrapText(true);
-			yours6.setAlignment(Pos.TOP_LEFT);
-			grid.add(yours1, 0, 0);
-			grid.add(yours2, 0, 1);
-			grid.add(yours3, 0, 2);
-			grid.add(yours4, 1, 0);
-			grid.add(yours5, 1, 1);
-			grid.add(yours6, 1, 2);
-
-			GridPane theirCards = new GridPane();
-			theirCards.setAlignment(Pos.TOP_CENTER);
-			theirCards.setHgap(10);
-			theirCards.setVgap(10);
-			theirCards.setPadding(new Insets(25, 25, 25, 25));
-			theirs1 = new Button();
-			theirs1.setMaxSize(200, 200);
-			theirs1.setWrapText(true);
-			theirs1.setAlignment(Pos.TOP_LEFT);
-			theirs2 = new Button();
-			theirs2.setMaxSize(200, 200);
-			theirs2.setWrapText(true);
-			theirs2.setAlignment(Pos.TOP_LEFT);
-			theirs3 = new Button();
-			theirs3.setMaxSize(200, 200);
-			theirs3.setWrapText(true);
-			theirs3.setAlignment(Pos.TOP_LEFT);
-			theirCards.add(theirs1, 0, 0);
-			theirCards.add(theirs2, 0, 1);
-			theirCards.add(theirs3, 0, 2);
-			vbox.getChildren().addAll(theirCards, grid);
-			Scene scene = new Scene(vbox, 1200, 800);
-			// Scene scene = new Scene(grid, 1200, 800);
-			addScreen("game", scene);
-		} else {
-			// TODO add version where you are not playing
-		}
-	}
-
-	public void createLoadingScreen() {
-		// TODO make a ready up message.
-	}
-
 	public void createLobby(Stage stage) {
-		Group root = new Group();
+		// Group root = new Group();
 		// stage.setScene(new Scene(root, 650, 500));
+		selectedAtt = "";
+		selectedChar = "";
+		VBox mainPanel = new VBox();
+		mainPanel.setAlignment(Pos.CENTER);
+		mainPanel.setPadding(new Insets(8.0));
+		mainPanel.setSpacing(8.0);
+
 		GridPane chatGrid = new GridPane();
+		chatGrid.setAlignment(Pos.BOTTOM_CENTER);
 		VBox box = new VBox();
 		box.setPadding(new Insets(8.0));
 		box.setSpacing(8.0);
@@ -214,11 +174,6 @@ public class ScreenManager extends StackPane {
 			@Override
 			public void handle(KeyEvent ke) {
 				if (ke.getCode().equals(KeyCode.ENTER)) {
-					/*
-					 * String text = "[" + username + "] " + input.getText() +
-					 * "\n";
-					 */
-					// output.appendText(text);
 					System.out.println(input.getText());
 					main.sendMessage(input.getText());
 					input.clear();
@@ -232,9 +187,6 @@ public class ScreenManager extends StackPane {
 		send.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				String text = "[" + username + "] " + input.getText() + "\n";
-				// output.appendText(text);
-				System.out.println(text);
 				main.sendMessage(input.getText());
 				input.clear();
 			}
@@ -250,13 +202,152 @@ public class ScreenManager extends StackPane {
 				main.setReadyUp();
 			}
 		});
+		VBox vbox = new VBox();
+		// Platform.runLater(() -> {
+		// main.startDeck();
+		// main.startHand();
+		// hand = main.getStartHand();
+		// });
+
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.BOTTOM_CENTER);
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(25, 25, 25, 25));
+		yours1 = new Button();
+		yours1.setMaxSize(200, 200);
+		yours1.setWrapText(true);
+		yours1.setAlignment(Pos.TOP_LEFT);
+		yours2 = new Button();
+		yours2.setMaxSize(200, 200);
+		yours2.setWrapText(true);
+		yours2.setAlignment(Pos.TOP_LEFT);
+		yours3 = new Button();
+		yours3.setMaxSize(200, 200);
+		yours3.setWrapText(true);
+		yours3.setAlignment(Pos.TOP_LEFT);
+		yours4 = new Button();
+		yours4.setMaxSize(200, 200);
+		yours4.setWrapText(true);
+		yours4.setAlignment(Pos.TOP_LEFT);
+		yours5 = new Button();
+		yours5.setMaxSize(200, 200);
+		yours5.setWrapText(true);
+		yours5.setAlignment(Pos.TOP_LEFT);
+		yours6 = new Button();
+		yours6.setMaxSize(200, 200);
+		yours6.setWrapText(true);
+		yours6.setAlignment(Pos.TOP_LEFT);
+		yours1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				yours2.disableProperty().set(true);
+				yours3.disableProperty().set(true);
+				selectedChar = yours1.getText();
+				if (!selectedChar.equals("") && !selectedAtt.equals("")) {
+					System.out.println("Sending in 1");
+					main.setCardsSelected(selectedChar, selectedAtt);
+				}
+			}
+		});
+		yours2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				yours1.disableProperty().set(true);
+				yours3.disableProperty().set(true);
+				selectedChar = yours2.getText();
+				if (!selectedChar.equals("") && !selectedAtt.equals("")) {
+					System.out.println("Sending in 2");
+					main.setCardsSelected(selectedChar, selectedAtt);
+				}
+			}
+		});
+		yours3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				yours2.disableProperty().set(true);
+				yours1.disableProperty().set(true);
+				selectedChar = yours3.getText();
+				if (!selectedChar.equals("") && !selectedAtt.equals("")) {
+					System.out.println("Sending in 3");
+					main.setCardsSelected(selectedChar, selectedAtt);
+				}
+			}
+		});
+		yours4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				yours5.disableProperty().set(true);
+				yours6.disableProperty().set(true);
+				selectedAtt = yours4.getText();
+				if (!selectedChar.equals("") && !selectedAtt.equals("")) {
+					System.out.println("Sending in 4");
+					main.setCardsSelected(selectedChar, selectedAtt);
+				}
+			}
+		});
+		yours5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				yours4.disableProperty().set(true);
+				yours6.disableProperty().set(true);
+				selectedAtt = yours5.getText();
+				if (!selectedChar.equals("") && !selectedAtt.equals("")) {
+					System.out.println("Sending in 5");
+					main.setCardsSelected(selectedChar, selectedAtt);
+				}
+			}
+		});
+		yours6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				yours5.disableProperty().set(true);
+				yours4.disableProperty().set(true);
+				selectedAtt = yours6.getText();
+				if (!selectedChar.equals("") && !selectedAtt.equals("")) {
+					System.out.println("Sending in 6");
+					main.setCardsSelected(selectedChar, selectedAtt);
+				}
+			}
+		});
+		grid.add(yours1, 0, 0);
+		grid.add(yours2, 0, 1);
+		grid.add(yours3, 0, 2);
+		grid.add(yours4, 1, 0);
+		grid.add(yours5, 1, 1);
+		grid.add(yours6, 1, 2);
+
+		GridPane theirCards = new GridPane();
+		theirCards.setAlignment(Pos.TOP_CENTER);
+		theirCards.setHgap(10);
+		theirCards.setVgap(10);
+		theirCards.setPadding(new Insets(25, 25, 25, 25));
+		theirs1 = new Button();
+		theirs1.setMaxSize(200, 200);
+		theirs1.setWrapText(true);
+		theirs1.setAlignment(Pos.TOP_LEFT);
+		theirs2 = new Button();
+		theirs2.setMaxSize(200, 200);
+		theirs2.setWrapText(true);
+		theirs2.setAlignment(Pos.TOP_LEFT);
+		theirs3 = new Button();
+		theirs3.setMaxSize(200, 200);
+		theirs3.setWrapText(true);
+		theirs3.setAlignment(Pos.TOP_LEFT);
+		theirCards.add(theirs1, 0, 0);
+		theirCards.add(theirs2, 0, 1);
+		theirCards.add(theirs3, 0, 2);
+		vbox.getChildren().addAll(theirCards, grid);
 
 		chatLine.getChildren().add(send);
 		chatLine.getChildren().add(start);
-		root.getChildren().add(chatGrid);
+		mainPanel.getChildren().add(vbox);
+		mainPanel.getChildren().add(chatGrid);
+
+		// root.getChildren().add(mainPanel);
 		stage.show();
 		input.requestFocus();
-		Scene scene = new Scene(root, 1200, 800);
+		Scene scene = new Scene(mainPanel, 1200, 800);
 		addScreen("chat", scene);
 	}
 

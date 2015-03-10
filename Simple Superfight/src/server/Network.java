@@ -42,6 +42,9 @@ public class Network {
 		kryo.register(StartGame.class);
 		kryo.register(ReadyUp.class);
 		kryo.register(Boolean.class);
+		kryo.register(SendSelected.class);
+		kryo.register(RecieveSelected.class);
+		kryo.register(FlipCards.class);
 	}
 
 	static public class RegisterName {
@@ -60,8 +63,24 @@ public class Network {
 		public String text;
 	}
 
+	static public class SendSelected {
+		public String character;
+		public String attribute;
+	}
+
+	static public class RecieveSelected {
+		public String character;
+		public String attribute;
+		public String random;
+	}
+
 	static public class ReadyUp {
 		public boolean isReady;
+		public String type;
+	}
+	
+	static public class FlipCards {
+		public String text;
 	}
 
 	static public class GetRandomStartHand {
@@ -71,8 +90,6 @@ public class Network {
 	static public class Deck {
 		private LinkedHashMap<Class<? extends Card>, LinkedList<Card>> deck;
 		private LinkedHashMap<Class<? extends Card>, LinkedList<Card>> usedDeck;
-
-		// add
 
 		public Hand randStartHand() {
 			Random rand = new Random();
@@ -91,13 +108,23 @@ public class Network {
 				hand.add(ch);
 				hand.add(at);
 				usedDeck.get(CharacterCard.class).add(ch);
-				usedDeck.get(AttributeCard.class).remove(at);
+				usedDeck.get(AttributeCard.class).add(at);
 
 				// TODO
 				count++;
 			}
 			Hand h = new Hand(hand);
 			return h;
+		}
+		
+		
+		public Card drawBlackCard(){
+			Random rand = new Random();
+			int atts = rand.nextInt(deck.get(AttributeCard.class).size());
+			Card att = deck.get(AttributeCard.class).get(atts);
+			deck.get(AttributeCard.class).remove(att);
+			usedDeck.get(AttributeCard.class).add(att);
+			return att;
 		}
 
 		public void init() {
@@ -158,6 +185,7 @@ public class Network {
 			}
 
 		}
+
 
 		public void printDeck() {
 			System.out.println("Current Deck:");

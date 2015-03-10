@@ -3,13 +3,15 @@ package client;
 import java.io.IOException;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import server.Network;
 import server.Network.ChatMessage;
+import server.Network.FlipCards;
 import server.Network.GetRandomStartHand;
 import server.Network.ReadyUp;
+import server.Network.RecieveSelected;
 import server.Network.RegisterName;
+import server.Network.SendSelected;
 import server.Network.StartGame;
 import clientUI.ScreenManager;
 
@@ -23,12 +25,11 @@ public class Main extends Application {
 	private static Stage stage;
 	private static ScreenManager sm;
 	private static Client client;
+	private static String character;
+	private static String attribute;
 
 	public static void main(String[] args) {
 		launch(args);
-		// hostName = "server";
-		// portNum = 255;
-
 	}
 
 	@Override
@@ -37,14 +38,25 @@ public class Main extends Application {
 		sm = new ScreenManager(this);
 		sm.createStart(stage);
 		sm.createLobby(stage);
-		// sm.createGame(stage);
 		sm.setScreen("start");
 	}
 
 	public void sendMessage(String text) {
-		ChatMessage cm = new ChatMessage();
-		cm.text = text;
-		client.sendTCP(cm);
+		if (text.equals("Vote 1")) {
+			// TODO send vote message that checks on the server if it is voting
+			// time.
+			System.out.println("Vote 1 command works");
+		} else {
+			if (text.equals("Vote 2")) {
+				// TODO send vote message that checks on the server if it is
+				// voting
+				// time.
+			} else {
+				ChatMessage cm = new ChatMessage();
+				cm.text = text;
+				client.sendTCP(cm);
+			}
+		}
 	}
 
 	public static ScreenManager getScreenManager() {
@@ -82,15 +94,23 @@ public class Main extends Application {
 
 				if (object instanceof StartGame) {
 					StartGame sg = (StartGame) object;
-					if (sg.text.equals("playing")) {
-						Platform.runLater(() -> {
-							sm.createGame(getStage(), true);
-						});
+					if (connection.getID() == 1 || connection.getID() == 2) {
+						startHand();
 					} else {
-						Platform.runLater(() -> {
-							sm.createGame(getStage(), false);
-						});
+						// TODO figure out how to either swap connection id with
+						// looser or more messages
 					}
+				}
+
+				if (object instanceof RecieveSelected) {
+					RecieveSelected rs = (RecieveSelected) object;
+					sm.setTheirButtonName(1, rs.character);
+					sm.setTheirButtonName(2, rs.attribute);
+					sm.setTheirButtonName(3, rs.random);
+				}
+
+				if (object instanceof FlipCards) {
+					sendSelectedCards();
 				}
 			}
 
@@ -100,13 +120,10 @@ public class Main extends Application {
 		});
 		try {
 			client.connect(5000, "localhost", Network.port);
-			// Server communication after connection can go here, or in
-			// Listener#connected().
 			System.out.println("Connected");
 			return true;
 		} catch (IOException ex) {
 			System.err.println("Could not connect. Server must be down.");
-			// System.exit(1);
 		}
 
 		return false;
@@ -116,7 +133,7 @@ public class Main extends Application {
 		return stage;
 	}
 
-	public void startHand() {
+	public static void startHand() {
 		GetRandomStartHand grsh = new GetRandomStartHand();
 		grsh.text = "";
 		client.sendTCP(grsh);
@@ -125,7 +142,25 @@ public class Main extends Application {
 	public void setReadyUp() {
 		ReadyUp ru = new ReadyUp();
 		ru.isReady = true;
+		ru.type = "start";
 		client.sendTCP(ru);
+	}
+
+	public void setCardsSelected(String character, String attribute) {
+		this.character = character;
+		this.attribute = attribute;
+		ReadyUp ru = new ReadyUp();
+		ru.isReady = true;
+		ru.type = "play";
+		client.sendTCP(ru);
+	}
+
+	public static void sendSelectedCards() {
+		System.out.println("Sending cards");
+		SendSelected ss = new SendSelected();
+		ss.character = character;
+		ss.attribute = attribute;
+		client.sendTCP(ss);
 	}
 
 }
